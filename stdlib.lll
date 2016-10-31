@@ -1,0 +1,125 @@
+;;; ---------------------------------------------------------------------------
+;;; @title A standard library of LLL macros.
+;;; @author Daniel Ellison <daniel@syrinx.net>
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Constant definitions.
+
+  ;; Booleans.
+  (def 'true 1)
+  (def 'false 0)
+
+  ;; Miscellaneous.
+  (def 'hold-back 1000) ; Amount of gas to hold back on <call>.
+
+  ;; Memory.
+  (def 'scratch-one 0x00)  ; Used by <keccak-hash> below.
+  (def 'scratch-two 0x20)  ; Potentially used by a two-parameter <sha3>.
+  (def 'call-data   0x40)  ; Can extend to 0xa4 with <call3>.
+  (def 'return-data 0xa4)  ; This varies with the value of <return-size>.
+  (def 'user-memory 0x1a4) ; Reserve 256 bytes for <return-data>.
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Shifts the rightmost 4 bytes of a 32-byte number left by 28 bytes.
+  ;; @dev 0x14ab90388092664827928d90384c73d82c5bf21abb61dd7d4971fc65f4851dfb
+  ;;      0xf4851dfb00000000000000000000000000000000000000000000000000000000
+  ;; @param input A 32-byte number.
+
+  (def 'shift-left (input)
+    (mul input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.
+  ;; @dev 0x14ab90388092664827928d90384c73d82c5bf21abb61dd7d4971fc65f4851dfb
+  ;;      0x0000000000000000000000000000000000000000000000000000000014ab9038
+  ;;      or simply 0x14ab9038
+  ;; @param input A 32-byte number.
+
+  (def 'shift-right (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Determines whether the supplied function ID matches a known
+  ;;         function hash and executes <code-body> if so.
+  ;; @dev The function ID is in the leftmost four bytes of the call data.
+  ;; @param function-hash The four-byte hash of a known function signature.
+  ;; @param code-body The code to run in the case of a match.
+
+  (def 'function (function-hash code-body)
+    (when (= (shift-right (calldataload 0x00)) function-hash)
+      code-body))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with no paramaters.
+  ;; @dev Sends all but <hold-back> gas to callee.
+  ;; @param contract-address The address of the contract to call.
+  ;; @param function-hash Short hash of the function to call.
+  ;; @param return-size The parameter return size of the called function.
+
+  (def 'call0 (contract-address function-hash return-size)
+    (seq
+      (mstore (+ call-data 0x00) (shift-left function-hash))
+      (call (- (gas) hold-back) 0 contract-address
+          call-data 4 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with one paramater.
+  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @param contract-address The address of the contract to call.
+  ;; @param function-hash Short hash of the function to call.
+  ;; @param param1 The first (and only) parameter to the function call.
+  ;; @param return-size The parameter return size of the called function.
+
+  (def 'call1 (contract-address function-hash param1 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (shift-left function-hash))
+      (mstore (+ call-data 0x04) param1)
+      (call (- (gas) hold-back) 0 contract-address
+          call-data 36 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with two paramaters.
+  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @param contract-address The address of the contract to call.
+  ;; @param function-hash Short hash of the function to call.
+  ;; @param param1 The first parameter to the function call.
+  ;; @param param2 The second parameter to the function call.
+  ;; @param return-size The parameter return size of the called function.
+
+  (def 'call2 (contract-address function-hash param1 param2 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (shift-left function-hash))
+      (mstore (+ call-data 0x04) param1)
+      (mstore (+ call-data 0x24) param2)
+      (call (- (gas) hold-back) 0 contract-address
+          call-data 68 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with three paramaters.
+  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @param contract-address The address of the contract to call.
+  ;; @param function-hash Short hash of the function to call.
+  ;; @param param1 The first parameter to the function call.
+  ;; @param param2 The second parameter to the function call.
+  ;; @param param3 The third parameter to the function call.
+  ;; @param return-size The parameter return size of the called function.
+
+  (def 'call3 (contract-address function-hash param1 param2 param3 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (shift-left function-hash))
+      (mstore (+ call-data 0x04) param1)
+      (mstore (+ call-data 0x24) param2)
+      (mstore (+ call-data 0x44) param3)
+      (call (- (gas) hold-back) 0 contract-address
+          call-data 100 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Determines the keccak hash of a given string.
+  ;; @param input A 32-byte hex-encoded string.
+
+  (def 'keccak-hash (input)
+    (sha3 scratch-one (lit scratch-one input)))
+
+)
