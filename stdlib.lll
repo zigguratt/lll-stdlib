@@ -122,4 +122,18 @@
   (def 'keccak-hash (input)
     (sha3 scratch-one (lit scratch-one input)))
 
+  ;; --------------------------------------------------------------------------
+  ;; @notice Increments the value @loc by 1.
+  ;; @param loc The memory location to increment.
+
+  (def '++ (loc)
+    (mstore loc (+ @loc 1)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Decrements the value @loc by 1.
+  ;; @param loc The memory location to decrement.
+
+  (def '-- (loc)
+    (mstore loc (- @loc 1)))
+
 )
