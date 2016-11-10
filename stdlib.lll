@@ -12,14 +12,17 @@
   (def 'false 0)
 
   ;; Miscellaneous.
+  (def 'stdlib-version "0.1.0") ; Contracts can abort if mismatched version.
   (def 'hold-back 1000) ; Amount of gas to hold back on <call>.
 
-  ;; Memory.
-  (def 'scratch-one 0x00)  ; Used by <keccak-hash> below.
-  (def 'scratch-two 0x20)  ; Potentially used by a two-parameter <sha3>.
-  (def 'call-data   0x40)  ; Can extend to 0xa4 with <call3>.
-  (def 'return-data 0xa4)  ; This varies with the value of <return-size>.
-  (def 'user-memory 0x1a4) ; Reserve 256 bytes for <return-data>.
+  ;; Memory layout.
+  (def 'scratch-one 0x0000) ; Scratch space.
+  (def 'scratch-two 0x0020) ; More scratch space.
+  (def 'return-code 0x0040) ; Boolean return value from <call>.
+  (def 'return-data 0x0060) ; Data returned to <call> (256 byte slush).
+  (def 'call-result 0x0160) ; Data returned from function (256 byte slush).
+  (def 'call-data   0x0260) ; Data provided to <call> (potentially 100 bytes).
+  (def 'user-memory 0x02c4) ; Library user memory start.
 
   ;; --------------------------------------------------------------------------
   ;; @notice Shifts the rightmost 4 bytes of a 32-byte number left by 28 bytes.
@@ -60,7 +63,7 @@
 
   (def 'call0 (contract-address function-hash return-size)
     (seq
-      (mstore (+ call-data 0x00) (shift-left function-hash))
+      (mstore call-data (shift-left function-hash))
       (call (- (gas) hold-back) 0 contract-address
           call-data 4 return-data return-size)))
 
@@ -117,6 +120,7 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Determines the keccak hash of a given string.
+  ;; @dev This does not currently work due to a bug in <lit>.
   ;; @param input A 32-byte hex-encoded string.
 
   (def 'keccak-hash (input)
