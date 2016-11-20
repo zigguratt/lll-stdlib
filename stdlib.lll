@@ -32,10 +32,10 @@
   ;; Memory layout.
   (def 'scratch-one 0x0000) ; Scratch space.
   (def 'scratch-two 0x0020) ; More scratch space.
-  (def 'return-code 0x0040) ; Boolean return value from <call>.
-  (def 'return-data 0x0060) ; Data returned to <call> (256 byte slush).
-  (def 'call-result 0x0160) ; Data returned from function (256 byte slush).
-  (def 'call-data   0x0260) ; Data provided to <call> (potentially 100 bytes).
+  (def 'return-code 0x0040) ; Boolean returned to calling contract.
+  (def 'return-data 0x0060) ; Data returned to calling contract.
+  (def 'call-result 0x0160) ; Data returned from called contract.
+  (def 'call-data   0x0260) ; Data provided to called contract.
   (def 'user-memory 0x02c4) ; Library user memory start.
 
   ;; --------------------------------------------------------------------------
