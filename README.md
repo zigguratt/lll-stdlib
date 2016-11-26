@@ -37,4 +37,10 @@ The next macro, `stdlib-version`, is used to verify that you're using the approp
 
 The next set of macros under *Memory layout* define how memory is used by these macros. The first two, `scratch-one` and `scratch-two`, aren't [Dr. Seuss characters](http://vignette4.wikia.nocookie.net/seuss/images/d/d3/Thing1-and-thing2.jpg/revision/latest?cb=20131013015212) as you might expect. They're used as temporary memory locations for various operations. In this library only `scratch-one` is used, but it's not unusual for both to be used for a longer keccak hash calculation.
 
+The next four definitions concern contract calls and their call and return values. When you call another contract from within your own contract you get a boolean return value indicating success or failure of the call. For convenience you can store this return value in `return-code`:
+```
+(mstore return-code (call (- (gas) hold-back)...
+```
+`return-data` is the memory location the calling contract specifies as the target of any data returned from the called contract.
+
 *To be continued...*
