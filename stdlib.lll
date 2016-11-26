@@ -26,8 +26,9 @@
   (def 'false 0)
 
   ;; Miscellaneous.
-  (def 'stdlib-version "0.1.0") ; Contracts can abort if mismatched version.
-  (def 'hold-back 1000) ; Amount of gas to hold back on <call>.
+  (def 'stdlib-version "0.1.1") ; Contracts can abort on version mismatch.
+  (def 'invalid-location 0x02)  ; Jumping here causes an EVM panic.
+  (def 'hold-back 1000)         ; Amount of gas to hold back on <call>.
 
   ;; Memory layout.
   (def 'scratch-one 0x0000) ; Scratch space.
@@ -131,14 +132,6 @@
       (mstore (+ call-data 0x44) param3)
       (call (- (gas) hold-back) 0 contract-address
           call-data 100 return-data return-size)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines the keccak hash of a given string.
-  ;; @dev This does not currently work due to a bug in <lit>.
-  ;; @param input A 32-byte hex-encoded string.
-
-  (def 'keccak-hash (input)
-    (sha3 scratch-one (lit scratch-one input)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Increments the value @loc by 1.
