@@ -26,7 +26,7 @@
   (def 'false 0)
 
   ;; Miscellaneous.
-  (def 'stdlib-version "0.1.1") ; Contracts can abort on version mismatch.
+  (def 'stdlib-version "0.1.2") ; Contracts can abort on version mismatch.
   (def 'invalid-location 0x02)  ; Jumping here causes an EVM panic.
   (def 'hold-back 1000)         ; Amount of gas to hold back on <call>.
 
@@ -70,8 +70,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with no paramaters.
-  ;; @dev Sends all but <hold-back> gas to callee. Assumes no ether to be sent
-  ;;      to called contract.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param return-size The parameter return size of the called function.
@@ -84,8 +84,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with one paramater.
-  ;; @dev Sends all but <hold-back> gas to callee. Assumes no ether to be sent
-  ;;      to called contract. Assumes 32-byte parameters.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first (and only) parameter to the function call.
@@ -100,8 +100,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with two paramaters.
-  ;; @dev Sends all but <hold-back> gas to callee. Assumes no ether to be sent
-  ;;      to called contract. Assumes 32-byte parameters.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first parameter to the function call.
@@ -118,8 +118,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with three paramaters.
-  ;; @dev Sends all but <hold-back> gas to callee. Assumes no ether to be sent
-  ;;      to called contract. Assumes 32-byte parameters.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first parameter to the function call.
@@ -149,5 +149,21 @@
 
   (def '-- (loc)
     (mstore loc (- @loc 1)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the smaller of two numbers.
+  ;; @param a First number.
+  ;; @param b Second number.
+
+  (def 'min (a b)
+    (if (< a b) a b))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the larger of two numbers.
+  ;; @param a First number.
+  ;; @param b Second number.
+
+  (def 'max (a b)
+    (if (> a b) a b))
 
 )
