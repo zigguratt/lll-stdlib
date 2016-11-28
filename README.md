@@ -31,16 +31,32 @@ LLL macros fall into two categories: simple assignments&mdash;what I call *const
 ## Constant definitions
 At the top of the `stdlib.lll` file is a set of simple assignments. The first two should be self-explanatory: `true` and `false`. LLL doesn't have a concept of booleans so this is a convenient way to use `true` and `false` in your code instead of `1` and `0`. In case it was unclear, macros are defined using the LLL keyword `def`.
 
+### `stdlib-version`
 The next macro, `stdlib-version`, is used to verify that you're using the appropriate version of this macro library in your contracts. A simple comparison between this number and the number you've defined in your source allows you to abort your contract's deployment if there's a version mismatch.
 
+### `invalid-location`
+When your contract determines that there's been an unrecoverable error, it should "throw" an error. That is accomplished by causing the contract to jump to an invalid location. That is actually what Solidity's `throw` does. In LLL, you would use the `jump` keyword and give it a location that is not tagged as a valid jump destination. Currently that location is `0x02`. So in order to cause a "throw" you would use the `invalid-location` constant:
+```
+(jump invalid-location)
+```
+This will change once the `panic` keyword that was recently added&mdash;and subsequently broken&mdash; is repaired. Then it would simply be a matter of doing:
+```
+(throw)
+```
+
+### `hold-back`
 `hold-back`, here defined as `1000`, is the amount of gas that is withheld from the amount being sent to another contract to pay for its execution. The idea is that your contract will need gas to continue execution in the event that the callee "throws" and consumes all gas sent to it. So instead of sending all of your gas, you hold back a small amount. `1000` is a bit high, but it's also an extremely small portion of 1 eth so it's not unreasonable.
 
+### `scratch-one` & `scratch-two`
 The next set of macros under *Memory layout* define how memory is used by these macros. The first two, `scratch-one` and `scratch-two`, aren't [Dr. Seuss characters](http://vignette4.wikia.nocookie.net/seuss/images/d/d3/Thing1-and-thing2.jpg/revision/latest?cb=20131013015212) as you might expect. They're used as temporary memory locations for various operations. In this library only `scratch-one` is used, but it's not unusual for both to be used for a longer keccak hash calculation.
 
+### Contract call constants
 The next four definitions concern contract calls and their call and return values. When you call another contract from within your own contract you get a boolean return value indicating success or failure of the call. For convenience you can store this return value in `return-code`:
 ```
 (mstore return-code (call (- (gas) hold-back)...
 ```
+
+### `return-data`
 `return-data` is the memory location the calling contract specifies as the target of any data returned from the called contract.
 
 *To be continued...*
